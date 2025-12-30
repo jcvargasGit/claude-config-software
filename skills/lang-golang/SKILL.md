@@ -15,8 +15,7 @@ Apply these Go-specific patterns and practices when working with Go code.
 - Keep names short but descriptive (`i` for index, `r` for reader, `ctx` for context)
 - Acronyms should be all caps (`HTTP`, `ID`, `URL`)
 - Unexported names start lowercase, exported start uppercase
-- do not include documentation on the code insted use minigfull naming convention on variables and functions
-- keep parameters amount max on 2, for more than 2 parameters use structs
+- More than 2 parameters: use structs (Go convention)
 
 ### Error Handling
 ```go

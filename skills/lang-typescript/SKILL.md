@@ -9,12 +9,10 @@ Apply these TypeScript patterns and practices when working with TypeScript code.
 
 ## Code Style
 
-- Use meaningful names that describe purpose
-- Avoid comments - code should be self-documenting
-- Maximum 2 parameters per function, use objects for more
 - Prefer `const` over `let`, never use `var`
 - Use strict mode (`"strict": true` in tsconfig)
 - Prefer explicit return types for public functions
+- Use options object pattern for multiple parameters
 
 ## Type Patterns
 

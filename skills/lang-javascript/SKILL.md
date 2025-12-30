@@ -9,12 +9,10 @@ Apply these JavaScript patterns and practices when working with JavaScript code.
 
 ## Code Style
 
-- Use meaningful names that describe purpose
-- Avoid comments - code should be self-documenting
-- Maximum 2 parameters per function, use objects for more
 - Prefer `const` over `let`, never use `var`
 - Use strict equality (`===`)
 - Prefer arrow functions for callbacks
+- Use options object pattern for multiple parameters
 
 ## Modern Patterns
 
