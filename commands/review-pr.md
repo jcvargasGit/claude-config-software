@@ -76,7 +76,7 @@ Use Task tool with multiple parallel calls for independent agents
 
 ### Step 5: Compile Review Summary
 
-After all agents complete, compile a summary:
+After all agents complete, compile a summary with detailed issue information:
 
 ```markdown
 # PR Review Summary
@@ -92,13 +92,25 @@ After all agents complete, compile a summary:
 ## Review Results
 
 ### Critical Issues (must fix)
-- [issue from agent] - `file:line`
+
+#### Issue 1: [Title]
+- **File:** `path/to/file.go:line_number`
+- **Confidence:** [80-100]%
+- **Description:** [What the issue is]
+- **Current Code:**
+  ```go
+  [problematic code snippet]
+  ```
+- **Suggested Fix:**
+  ```go
+  [improved code snippet]
+  ```
 
 ### Important Issues (should fix)
-- [issue from agent] - `file:line`
+[Same format as critical issues]
 
 ### Suggestions (nice to have)
-- [suggestion from agent] - `file:line`
+[Same format as critical issues]
 
 ### Strengths
 - [positive observations]
@@ -112,36 +124,64 @@ After all agents complete, compile a summary:
 
 ### Step 6: Ask User About PR Comments
 
-Use AskUserQuestion to ask:
+For each issue found:
 
-```
-Would you like me to add review comments to the PR?
-- Yes, add all issues as PR comments
-- Yes, add only critical/important issues
-- No, just save the summary locally
+1. **MUST copy file path to clipboard FIRST** before displaying the issue:
+   ```bash
+   echo -n "path/to/file.go" | pbcopy
+   ```
+
+2. Then display the issue information:
+
+```markdown
+---
+### Issue [N]: [Title]
+**File:** `path/to/file.go:line_number` (copied to clipboard)
+**PR Files Link:** https://github.com/[org]/[repo]/pull/[pr_number]/files
+**Severity:** Critical | Important | Suggestion
+**Confidence:** [80-100]%
+
+**Reason:** [Why this is an issue]
+
+**Current Code:**
+```go
+[the problematic code snippet]
 ```
 
-If user wants to add comments:
+**Suggested Improvement:**
+```go
+[the improved code snippet]
+```
+---
+```
+
+**Link format**: `https://github.com/[org]/[repo]/pull/[pr_number]/files`
+- Get PR number from `gh pr list --head [branch] --json number`
+- Or from `gh pr view --json number`
+- Get org/repo from: `git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/'`
+
+3. Use AskUserQuestion to ask for EACH issue individually:
+```
+Add this issue as a PR comment?
+- Yes, add this comment
+- No, skip this one
+```
+
+After going through all issues, if user selected any to add:
 ```bash
-# For general comment
-gh pr comment $PR_NUMBER --body "Review summary..."
+# For general comment with all selected issues
+gh pr comment $PR_NUMBER --body "## Code Review Comments
 
-# For line-specific comments (if applicable)
+[List of selected issues with file:line and improvements]
+"
+
+# Or for line-specific comments (if PR is accessible via gh)
 gh pr review $PR_NUMBER --comment --body "..."
 ```
 
-### Step 7: Save Review Summary (User Approval Required)
+### Step 7: Save Review Summary (Auto-Save)
 
-Ask the user for approval before saving using AskUserQuestion:
-
-```
-Would you like to save this review summary?
-- Yes, save to .claude/reviews/
-- Yes, save to custom location
-- No, don't save
-```
-
-**Only if user approves**, save the summary:
+**Automatically save the review summary** - no user approval needed:
 
 ```bash
 mkdir -p .claude/reviews
@@ -149,7 +189,7 @@ mkdir -p .claude/reviews
 
 Save as `.claude/reviews/PR-[number]-[date].md`
 
-**Run the file write operation in the background** using the Task tool with `run_in_background: true` so the user can continue working while the summary is being saved.
+**Run the file write operation in the background** using the Task tool with `run_in_background: true` so the user can continue working while the summary is being saved. Do NOT ask for approval - just save it.
 
 ## Agent Selection Logic
 
@@ -193,7 +233,8 @@ ALWAYS:
 
 - Agents run in parallel for faster reviews
 - Only high-confidence issues (≥80) are reported
-- Summary saving requires user approval before writing
+- Summary is auto-saved to `.claude/reviews/` (no approval needed)
 - Summary is saved in the background (non-blocking)
+- File path is copied to clipboard for each issue (for easy navigation in PR)
 - PR comments are optional and user-controlled
 - Uses extended thinking (opus model) for thorough analysis

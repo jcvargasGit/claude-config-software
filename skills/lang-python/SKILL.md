@@ -14,6 +14,7 @@ Apply these Python patterns and practices when working with Python code.
 - Prefer f-strings for formatting
 - Use `pathlib` over `os.path`
 - Maximum line length: 88 (Black default)
+- **All imports must be at the top of the file** - never inside functions or methods
 
 ## Type Hints
 
@@ -367,6 +368,7 @@ project/
 ## Quality Checklist
 
 When writing Python code, verify:
+- [ ] All imports at the top of the file (not inside functions/methods)
 - [ ] Type hints on all public functions
 - [ ] No bare `except:` clauses
 - [ ] Resources properly closed (context managers)
