@@ -177,16 +177,17 @@ Add this issue as a PR comment?
 - No, skip this one
 ```
 
-After going through all issues, if user selected any to add:
+For each issue, record the user's choice (e.g., mark the issue as "selected" when they choose "Yes"). After going through all issues, if the user selected any to add, aggregate the selected issues into a single Markdown-formatted list string (for example, `$SELECTED_ISSUES_MARKDOWN`) that includes file:line and the suggested improvement for each issue.
 ```bash
-# For general comment with all selected issues
+# For a single general comment with all selected issues
 gh pr comment $PR_NUMBER --body "## Code Review Comments
 
-[List of selected issues with file:line and improvements]
+$SELECTED_ISSUES_MARKDOWN
 "
 
-# Or for line-specific comments (if PR is accessible via gh)
-gh pr review $PR_NUMBER --comment --body "..."
+# Or, alternatively, for line-specific comments (if PR is accessible via gh),
+# iterate over the selected issues and post one comment per issue:
+# gh pr review $PR_NUMBER --comment --body "$ISSUE_BODY" --file "$FILE" --line "$LINE"
 ```
 
 ### Step 7: Save Review Summary (Auto-Save)
