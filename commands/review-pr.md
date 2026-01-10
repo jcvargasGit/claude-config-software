@@ -128,7 +128,17 @@ For each issue found:
 
 1. **MUST copy file path to clipboard FIRST** before displaying the issue:
    ```bash
-   echo -n "path/to/file.go" | pbcopy
+   FILE_PATH="path/to/file.go"
+   if command -v pbcopy >/dev/null 2>&1; then
+     printf "%s" "$FILE_PATH" | pbcopy
+   elif command -v xclip >/dev/null 2>&1; then
+     printf "%s" "$FILE_PATH" | xclip -selection clipboard
+   elif command -v xsel >/dev/null 2>&1; then
+     printf "%s" "$FILE_PATH" | xsel --clipboard --input
+   else
+     echo "No clipboard tool (pbcopy/xclip/xsel) found; file path:"
+     echo "$FILE_PATH"
+   fi
    ```
 
 2. Then display the issue information:
