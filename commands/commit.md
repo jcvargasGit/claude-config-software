@@ -38,9 +38,9 @@ type(scope): short description
 
 **Examples:**
 ```
-feat(skills): BRANCH_NAME add Python and Node.js language skills
-fix(api): BRANCH_NAME handle null response from user service
-refactor(handlers): BRANCH_NAME extract validation logic
-docs: BRANCH_NAME update README with new agent structure
-chore(deps): BRANCH_NAME upgrade aws-sdk to v3
+feat(skills): [branch-name] add Python and Node.js language skills
+fix(api): [branch-name] handle null response from user service
+refactor(handlers): [branch-name] extract validation logic
+docs: [branch-name] update README with new agent structure
+chore(deps): [branch-name] upgrade aws-sdk to v3
 ```
