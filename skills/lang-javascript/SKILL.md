@@ -1,6 +1,7 @@
 ---
 name: lang-javascript
-description: Apply JavaScript best practices, modern ES6+ patterns, and clean code when writing or reviewing JavaScript code.
+description: JavaScript expert for *.js/*.jsx files. Covers ES6+, async/await, modules, DOM, Node.js basics. Use for any JavaScript/JS question.
+model: opus
 ---
 
 # JavaScript Skill

@@ -1,6 +1,7 @@
 ---
 name: frontend-html
-description: Apply HTML best practices, semantic markup, and accessibility patterns when writing or reviewing HTML.
+description: HTML expert for *.html files. Covers semantic elements, accessibility (a11y), forms, SEO meta tags, and ARIA attributes. Use for any HTML question.
+model: opus
 ---
 
 # HTML Skill

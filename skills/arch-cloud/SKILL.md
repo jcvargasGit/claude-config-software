@@ -1,6 +1,7 @@
 ---
 name: arch-cloud
-description: Apply cloud architecture principles, patterns, and best practices for designing scalable distributed systems.
+description: Cloud architecture expert. Covers microservices, distributed systems, scalability, resilience, event-driven patterns, and system design. Use for architecture decisions.
+model: opus
 ---
 
 # Cloud Architecture Skill

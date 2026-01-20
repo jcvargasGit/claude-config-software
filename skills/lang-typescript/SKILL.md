@@ -1,6 +1,7 @@
 ---
 name: lang-typescript
-description: Apply TypeScript best practices, type patterns, and idiomatic code when writing or reviewing TypeScript code.
+description: TypeScript expert for *.ts/*.tsx files. Covers types, generics, interfaces, React+TS, Node+TS, and tsconfig. Use for any TypeScript question.
+model: opus
 ---
 
 # TypeScript Skill

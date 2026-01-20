@@ -1,6 +1,7 @@
 ---
 name: frontend-css
-description: Apply CSS best practices, modern layouts, and styling patterns when writing or reviewing stylesheets.
+description: CSS expert for *.css/*.scss files. Covers Flexbox, Grid, responsive design, animations, variables, and BEM naming. Use for any CSS/styling question.
+model: opus
 ---
 
 # CSS Skill

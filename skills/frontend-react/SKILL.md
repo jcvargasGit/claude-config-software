@@ -1,6 +1,7 @@
 ---
 name: frontend-react
-description: Apply React best practices, component patterns, and hooks when writing or reviewing React code.
+description: React expert for *.jsx/*.tsx files. Covers hooks (useState, useEffect), components, context, Redux, Next.js basics. Use for any React question.
+model: opus
 ---
 
 # React Skill

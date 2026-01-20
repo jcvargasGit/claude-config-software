@@ -1,6 +1,7 @@
 ---
 name: spec-user-stories
-description: Write clear, actionable user stories that capture user needs with proper context and business value.
+description: User story expert. Covers "As a... I want... So that..." format, INVEST criteria, story points, and backlog refinement. Use for writing user stories or tickets.
+model: opus
 ---
 
 # User Stories Skill

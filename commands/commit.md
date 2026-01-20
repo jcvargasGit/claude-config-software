@@ -9,35 +9,36 @@ Generate a commit message following conventional commits and commit the staged c
 
 ## Instructions
 
-1. Run `git status` and `git diff --staged` to see what's being committed
-2. Generate a commit message in this format:
-3. The commit message should contain the current branch name
+**EFFICIENCY RULE: This is a simple command. Execute in exactly 2 steps - no extra commands.**
+
+### Step 1: Get status and diff (single command)
+```bash
+git status && git diff --staged
+```
+
+### Step 2: Commit immediately
+Generate message and commit. Do NOT run `git log` or any other commands.
+
+## Commit Message Format
 
 ```
-type(scope): short description
+type(scope): BRANCH_NAME short description
 
 - bullet points for details (if needed)
 ```
 
-**Types:**
-- `feat` - new feature
-- `fix` - bug fix
-- `test` - adding or updating tests
+**Types:** `feat` | `fix` | `test` | `refactor` | `docs` | `chore`
 
 **Rules:**
-- Scope is optional, use folder/module name if relevant
+- Scope: use folder/module name if relevant
 - Description: lowercase, no period, imperative mood ("add" not "added")
-- Keep it under 72 characters
+- Keep under 72 characters
 - Only add bullet points if multiple distinct changes
+- **NEVER add "Co-Authored-By: Claude"**
 
-3. Run the commit with the generated message (no footer lines)
-4. Show the commit hash when done
-
-**Examples:**
+## Examples
 ```
-feat(skills): BRANCH_NAME add Python and Node.js language skills
-fix(api): BRANCH_NAME handle null response from user service
-refactor(handlers): BRANCH_NAME extract validation logic
-docs: BRANCH_NAME update README with new agent structure
-chore(deps): BRANCH_NAME upgrade aws-sdk to v3
+feat(skills): feature/TA-123 add Python and Node.js language skills
+fix(api): bugfix/API-456 handle null response from user service
+refactor(handlers): feature/TA-789 extract validation logic
 ```

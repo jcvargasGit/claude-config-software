@@ -1,6 +1,7 @@
 ---
 name: spec-prd
-description: Structure Product Requirements Documents with clear scope, success metrics, and developer-ready specifications.
+description: PRD (Product Requirements Document) expert. Covers problem statement, scope, success metrics, requirements, and technical specifications. Use for writing PRDs or product specs.
+model: opus
 ---
 
 # PRD (Product Requirements Document) Skill

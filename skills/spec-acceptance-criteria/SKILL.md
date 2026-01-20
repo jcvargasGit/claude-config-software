@@ -1,6 +1,7 @@
 ---
 name: spec-acceptance-criteria
-description: Write clear, testable acceptance criteria using BDD Given/When/Then format.
+description: Acceptance criteria expert using BDD Given/When/Then format. Covers testable requirements, edge cases, and definition of done. Use for writing AC or acceptance criteria.
+model: opus
 ---
 
 # Acceptance Criteria Skill

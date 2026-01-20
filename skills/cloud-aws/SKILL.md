@@ -1,6 +1,7 @@
 ---
 name: cloud-aws
-description: Apply AWS best practices, service selection, and architecture patterns when building on Amazon Web Services.
+description: AWS (Amazon Web Services) expert. Covers Lambda, S3, DynamoDB, IAM, CloudWatch, API Gateway, and all AWS services. Use for any AWS question.
+model: opus
 ---
 
 # AWS Skill

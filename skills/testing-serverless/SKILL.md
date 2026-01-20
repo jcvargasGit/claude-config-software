@@ -1,6 +1,7 @@
 ---
 name: testing-serverless
-description: Apply serverless testing best practices using the inverted test pyramid - prioritize integration tests against real cloud services.
+description: Serverless testing expert using inverted test pyramid. Covers integration tests, Lambda testing, LocalStack, mocking AWS services, and contract testing. Use for testing Lambda or serverless apps.
+model: opus
 ---
 
 # Serverless Testing Skill
