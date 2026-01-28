@@ -1,6 +1,7 @@
 ---
 name: devops-github-actions
-description: Apply GitHub Actions best practices for CI/CD pipelines, workflows, and automation.
+description: GitHub Actions expert. Covers workflows, jobs, steps, actions, secrets, matrix builds, and CI/CD pipelines. Use for any GitHub Actions question.
+model: opus
 ---
 
 # GitHub Actions Skill
@@ -286,6 +287,7 @@ jobs:
 # .github/actions/setup-project/action.yml
 name: Setup Project
 description: Setup Node, pnpm, and install dependencies
+model: opus
 
 runs:
   using: composite

@@ -1,6 +1,7 @@
 ---
 name: arch-hexagonal
-description: Apply Hexagonal Architecture (Ports & Adapters) principles for building maintainable, testable, and framework-agnostic applications.
+description: Hexagonal Architecture (Ports & Adapters) expert. Covers domain-driven design, clean architecture, dependency inversion, and testable code structure. Use for architecture questions.
+model: opus
 ---
 
 # Hexagonal Architecture Skill

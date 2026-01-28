@@ -1,6 +1,7 @@
 ---
 name: clean-code
-description: Apply Clean Code principles from Robert C. Martin (Uncle Bob) for writing readable, maintainable, and professional code.
+description: Clean Code principles from Robert C. Martin (Uncle Bob). Covers naming, functions, comments, formatting, error handling, SOLID, and refactoring. Use for code quality questions.
+model: opus
 ---
 
 # Clean Code Skill

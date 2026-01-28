@@ -1,14 +1,30 @@
 ---
 name: review-pr
-description: Comprehensive PR review with intelligent agent selection and summary saving
-argument-hint: "[PR number or branch name]"
-model: opus
-allowed-tools: ["Bash", "Glob", "Grep", "Read", "Write", "Task", "AskUserQuestion"]
+description: Comprehensive PR review with intelligent agent selection
+argument-hint: "[PR number or branch] [--save]"
+model: sonnet
+allowed-tools: ["Bash", "Task", "AskUserQuestion"]
 ---
 
 # PR Review Command
 
 Comprehensive pull request review using intelligent agent selection based on the code being reviewed.
+
+## ⚠️ IMPORTANT: Speed Rules
+
+**After agents complete, DO NOT:**
+- Read source files directly (agents already did this)
+- Re-run git diff (agents already have the diff)
+- Re-analyze or verify agent findings
+- Do ANY additional investigation
+
+**Your ONLY job after agents complete:**
+1. Extract issues from agent outputs
+2. Present each issue with nice formatting
+3. Ask per-issue question
+4. Post selected issues to PR
+
+**If diff is large:** That's fine. Agents handle it. Do NOT try to read files yourself.
 
 ## Instructions
 
@@ -21,211 +37,205 @@ git fetch origin
 git pull origin $(git branch --show-current) --rebase 2>/dev/null || true
 ```
 
-### Step 2: Get PR Information
+### Step 2: Get PR Information (ONE command only)
 
-If an argument is provided ("$ARGUMENTS"), use it as the PR number or branch name.
-
-```bash
-# If numeric, it's a PR number
-gh pr view $ARGUMENTS
-
-# If branch name, find the PR
-gh pr list --head $ARGUMENTS
-```
-
-If no argument, check current branch:
-```bash
-gh pr view
-```
-
-### Step 3: Analyze the Diff
-
-Get the PR diff and analyze what types of files changed:
+Get PR number and diff in a single command:
 
 ```bash
-gh pr diff $PR_NUMBER --name-only
+# Get PR number (use argument if provided, else current branch)
+PR_NUM=$(gh pr view ${ARGUMENTS:-} --json number -q '.number' 2>/dev/null || echo "")
+if [ -z "$PR_NUM" ]; then
+  echo "No PR found. Create a PR first or provide PR number."
+  exit 1
+fi
+echo "Reviewing PR #$PR_NUM"
 ```
 
-Categorize the changes:
-- **Backend code**: `.go`, `.py`, `.java`, `.rs`, `.rb`
-- **Frontend code**: `.ts`, `.tsx`, `.js`, `.jsx`, `.vue`, `.svelte`, `.css`, `.html`
-- **Test files**: `*_test.go`, `*.test.ts`, `*.spec.ts`, `*_test.py`, etc.
-- **Infrastructure**: `.tf`, `.yaml`, `.yml` (CloudFormation, k8s), `Dockerfile`
-- **Types/Interfaces**: Files with type definitions, interfaces, structs
+**Store PR_NUM and reuse it. DO NOT run gh pr view again.**
 
-### Step 4: Select and Run Agents
+### Step 3: Get Diff (ONE command, store result)
 
-Based on the file types detected, run the appropriate agents **in parallel** using the Task tool:
-
-| File Types | Agents to Use |
-|------------|---------------|
-| Backend (.go, .py, etc.) | `backend-developer` (architecture review) |
-| Frontend (.ts, .tsx, etc.) | `frontend-engineer` (UI/UX review) |
-| Test files | `pr-review-toolkit:pr-test-analyzer` (test coverage) |
-| Error handling code | `pr-review-toolkit:silent-failure-hunter` (error handling) |
-| New types/interfaces | `pr-review-toolkit:type-design-analyzer` (type design) |
-| All PRs | `pr-review-toolkit:code-reviewer` (general quality) |
-| Comments/docs added | `pr-review-toolkit:comment-analyzer` (comment accuracy) |
-
-**Always run `code-reviewer` as baseline. Add other agents based on detected file types.**
-
-Launch agents in parallel for efficiency:
-```
-Use Task tool with multiple parallel calls for independent agents
+```bash
+# Get file list and full diff in one call
+DIFF=$(gh pr diff $PR_NUM)
+echo "$DIFF" | head -50  # Preview first 50 lines
 ```
 
-### Step 5: Compile Review Summary
+**Store DIFF variable. Pass it to agents. DO NOT run gh pr diff again.**
 
-After all agents complete, compile a summary with detailed issue information:
+### Step 4: Run Code Review Agent
 
-```markdown
-# PR Review Summary
+Launch ONE agent with the diff (simpler = faster):
 
-**PR:** #[number] - [title]
-**Branch:** [branch-name]
-**Author:** [author]
-**Date:** [date]
+```
+Task tool parameters:
+- subagent_type: "feature-dev:code-reviewer"
+- max_turns: 10
+- run_in_background: false  # Wait for result
+- prompt: |
+    Review this PR diff. Report issues with confidence >= 80% only.
 
-## Files Changed
-- [list of files with change type: added/modified/deleted]
+    ## Diff:
+    $DIFF
 
-## Review Results
+    Output format for each issue:
+    - Severity: CRITICAL/IMPORTANT/MINOR
+    - File: FULL path from repo root (e.g., internal/handlers/main.go:42-45)
+    - Issue: description
+    - Code: the problematic code snippet with line numbers
+    - Fix: suggested code fix
 
-### Critical Issues (must fix)
-
-#### Issue 1: [Title]
-- **File:** `path/to/file.go:line_number`
-- **Confidence:** [80-100]%
-- **Description:** [What the issue is]
-- **Current Code:**
-  ```go
-  [problematic code snippet]
-  ```
-- **Suggested Fix:**
-  ```go
-  [improved code snippet]
-  ```
-
-### Important Issues (should fix)
-[Same format as critical issues]
-
-### Suggestions (nice to have)
-[Same format as critical issues]
-
-### Strengths
-- [positive observations]
-
-## Agents Used
-- [list of agents that ran]
-
-## Recommendation
-[APPROVE / REQUEST_CHANGES / COMMENT]
+    IMPORTANT: Always use FULL file paths (internal/..., cmd/..., pkg/...)
+    DO NOT run git/gh commands. Analyze the diff above only.
 ```
 
-### Step 6: Ask User About PR Comments
+**ONE agent is enough for most PRs. Skip parallel agents unless PR is huge.**
 
-For each issue found:
+### Step 5: SKIP - DO NOT READ FILES - GO TO STEP 6
 
-1. **MUST copy file path to clipboard FIRST** before displaying the issue:
+**CRITICAL RULES:**
+- ❌ Do NOT read any source files
+- ❌ Do NOT run git diff again
+- ❌ Do NOT re-analyze the code
+- ❌ Do NOT verify agent findings
+- ✅ ONLY use issues from agent outputs
+- ✅ Go IMMEDIATELY to Step 6
+
+The agents already did the work. Your ONLY job now is to present their findings.
+
+### Step 6: Ask About Each Issue (Per-Issue Questions)
+
+**DO NOT run any git/gh commands here.** Use PR_NUMBER from Step 2.
+
+**For EACH issue from agent outputs:**
+
+1. **Copy file path to clipboard FIRST:**
    ```bash
-   FILE_PATH="path/to/file.go"
-   if command -v pbcopy >/dev/null 2>&1; then
-     printf "%s" "$FILE_PATH" | pbcopy
-   elif command -v xclip >/dev/null 2>&1; then
-     printf "%s" "$FILE_PATH" | xclip -selection clipboard
-   elif command -v xsel >/dev/null 2>&1; then
-     printf "%s" "$FILE_PATH" | xsel --clipboard --input
-   else
-     echo "No clipboard tool (pbcopy/xclip/xsel) found; file path:"
-     echo "$FILE_PATH"
-   fi
+   echo -n "path/to/file.go" | pbcopy
    ```
 
-2. Then display the issue information:
+2. **Display the issue with color highlighting:**
 
-```markdown
----
-### Issue [N]: [Title]
-**File:** `path/to/file.go:line_number` (copied to clipboard)
-**PR Files Link:** https://github.com/[org]/[repo]/pull/[pr_number]/files
-**Severity:** Critical | Important | Suggestion
-**Confidence:** [80-100]%
+   Use this Bash command to print with colors:
+   ```bash
+   echo -e "
+   \033[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m
+   \033[1;31m🔴 CRITICAL\033[0m  │  Issue 1 of 5
+   \033[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m
+   \033[36m📁 internal/handlers/confirmreception/main.go:64-68\033[0m
 
-**Reason:** [Why this is an issue]
+   \033[1mMissing error handling in user lookup\033[0m
 
-**Current Code:**
-```go
-[the problematic code snippet]
-```
+   When GetUserDataLogin returns (nil, nil), the handler masks the underlying
+   issue. A service misconfiguration would be reported as \"user not found\".
 
-**Suggested Improvement:**
-```go
-[the improved code snippet]
-```
----
-```
+   \033[90m// 📍 internal/handlers/confirmreception/main.go:64-68\033[0m
+   user, err := h.userService.GetUserDataLogin(ctx, req.UserID)
+   if err != nil {
+       return nil, err
+   }
+   if user == nil {
+       return nil, \033[41;37mErrorCodeUserNotFound\033[0m  \033[31m← BUG: no logging before returning\033[0m
+   }
 
-**Link format**: `https://github.com/[org]/[repo]/pull/[pr_number]/files`
-- Get PR number from `gh pr list --head [branch] --json number`
-- Or from `gh pr view --json number`
-- Get org/repo from: `git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/'`
+   \033[32m✨ Fix:\033[0m
+   if user == nil {
+       \033[42;30mh.logger.Warn(\"user service returned nil without error\", \"userID\", req.UserID)\033[0m
+       return nil, ErrorCodeUserNotFound
+   }
 
-3. Use AskUserQuestion to ask for EACH issue individually:
-```
-Add this issue as a PR comment?
-- Yes, add this comment
-- No, skip this one
-```
+   \033[33m💡 Pro tip:\033[0m \"Errors are like vegetables - ignoring them doesn't make them go away.\"
+   \033[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m
+   "
+   ```
 
-For each issue, record the user's choice (e.g., mark the issue as "selected" when they choose "Yes"). After going through all issues, if the user selected any to add, aggregate the selected issues into a single Markdown-formatted list string (for example, `$SELECTED_ISSUES_MARKDOWN`) that includes file:line and the suggested improvement for each issue.
+   **Color codes used:**
+   - `\033[41;37m` = Red background, white text (ONLY the problematic part)
+   - `\033[42;30m` = Green background, black text (ONLY the fix/new code)
+   - `\033[31m` = Red text (bug explanation after ←)
+   - `\033[32m` = Green text (fix label)
+   - `\033[36m` = Cyan text (file path)
+   - `\033[33m` = Yellow text (tips)
+   - `\033[1m` = Bold
+   - `\033[0m` = Reset
+
+   **Format rules:**
+   - Highlight ONLY the specific problematic token/value (e.g., `""`, `nil`, wrong variable)
+   - Highlight ONLY the new/fixed code in green
+   - Keep surrounding code normal so the issue stands out
+   - Arrow `←` explains what's wrong
+
+   **Severity indicators:**
+   - `🔴 CRITICAL` - Must fix (bugs, security)
+   - `🟡 IMPORTANT` - Should fix (code quality)
+   - `🔵 SUGGESTION` - Nice to have (style)
+
+   **Fun tips to rotate (pick random):**
+   - "Errors are like vegetables - ignoring them doesn't make them go away."
+   - "This code trusts external services more than I trust Monday mornings."
+   - "Future you will mass DM 'thank you' for catching this."
+   - "Every silent failure is a mystery novel you'll debug at 3am."
+   - "This is the kind of bug that waits until prod to say hello."
+   - "Schrödinger's error: it both exists and doesn't until you check."
+   - "Your future self called - they want you to fix this now."
+   - "This bug has 'urgent Slack message' written all over it."
+
+3. **Ask for THIS issue:**
+   ```
+   AskUserQuestion:
+   Question: "Add this issue as a PR comment?"
+   Header: "PR Comment"
+   Options:
+   - "Yes, add this comment"
+   - "No, skip this one"
+   - "Skip all remaining issues"
+   ```
+
+4. **If "Skip all remaining"**, stop asking and go to posting.
+
+**After all issues**, post comment using PR_NUM from Step 2:
 ```bash
-# For a single general comment with all selected issues
-gh pr comment $PR_NUMBER --body "## Code Review Comments
+gh pr comment $PR_NUM --body "## Code Review
 
-$SELECTED_ISSUES_MARKDOWN
-"
+[Selected issues here]
 
-# Or, alternatively, for line-specific comments (if PR is accessible via gh),
-# iterate over the selected issues and post one comment per issue:
-# gh pr review $PR_NUMBER --comment --body "$ISSUE_BODY" --file "$FILE" --line "$LINE"
+---
+*Review by Claude Code*"
 ```
 
-### Step 7: Save Review Summary (Auto-Save)
+**Use stored PR_NUM. DO NOT run gh pr view or git remote again.**
 
-**Automatically save the review summary** - no user approval needed:
+### Step 7: Save Review Summary (OPTIONAL - Bash only)
+
+**Only save if user explicitly requests with `--save` flag.**
+
+If saving, use Bash heredoc (no Write tool, no permissions needed):
 
 ```bash
 mkdir -p .claude/reviews
+cat > ".claude/reviews/PR-${PR_NUM}-$(date +%Y-%m-%d).md" << 'EOF'
+# PR Review: #$PR_NUM
+
+## Issues Found
+[list from agents]
+
+## Posted as Comments
+[list of issues user selected]
+EOF
 ```
 
-Save as `.claude/reviews/PR-[number]-[date].md`
+**DO NOT use Write tool or Task agent for saving - causes permission delays.**
 
-**Run the file write operation in the background** using the Task tool with `run_in_background: true` so the user can continue working while the summary is being saved. Do NOT ask for approval - just save it.
+## Speed Summary
 
-## Agent Selection Logic
+**Commands to run (total: 3):**
+1. `git fetch && git pull` - sync
+2. `gh pr view --json number` - get PR number
+3. `gh pr diff $PR_NUM` - get diff
 
-```
-IF has backend files (.go, .py, .java, .rs):
-  → Run backend-developer agent
+**Then:** Pass diff to ONE agent, present findings, post comment.
 
-IF has frontend files (.ts, .tsx, .js, .jsx, .vue):
-  → Run frontend-engineer agent
-
-IF has test files (*_test.*, *.test.*, *.spec.*):
-  → Run pr-test-analyzer agent
-
-IF has error handling (try/catch, if err !=, .catch):
-  → Run silent-failure-hunter agent
-
-IF has new type definitions (type, interface, struct):
-  → Run type-design-analyzer agent
-
-IF has new/modified comments or docs:
-  → Run comment-analyzer agent
-
-ALWAYS:
-  → Run code-reviewer agent (baseline)
-```
+**DO NOT:** Run multiple gh commands, detect repo URL, run git remote, etc.
 
 ## Example Usage
 
@@ -242,10 +252,11 @@ ALWAYS:
 
 ## Notes
 
-- Agents run in parallel for faster reviews
-- Only high-confidence issues (≥80) are reported
-- Summary is auto-saved to `.claude/reviews/` (no approval needed)
-- Summary is saved in the background (non-blocking)
-- File path is copied to clipboard for each issue (for easy navigation in PR)
-- PR comments are optional and user-controlled
-- Uses extended thinking (opus model) for thorough analysis
+- **Speed optimization:** NO summary step - go straight from agents to per-issue questions
+- **Per-issue flow:**
+  1. Copy file path to clipboard
+  2. Show: file, line, issue description, current code, suggested fix
+  3. Ask: "Add as PR comment?" (Yes / No / Skip all)
+- **Quality preserved:** Sonnet model, rich display, code snippets
+- Only high-confidence issues (≥80%) are reported
+- PR comments batch-posted at the end

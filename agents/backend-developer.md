@@ -95,11 +95,38 @@ Suggest a commit after completing:
 
 ## Code Conventions
 
-- No inline comments - use meaningful names
+- **No redundant comments** - Do NOT add comments that repeat what the name already says. Comments that provide additional context (like full names for codes) are acceptable:
+  ```go
+  // BAD - Comment repeats what the name says
+  const GenderMale = 1    // Male gender ID
+  const StatusActive = 1  // Active status
+
+  // GOOD - Name is explicit, no comment needed
+  const GenderMale = 1
+  const StatusActive = 1
+
+  // GOOD - Comment adds context not obvious from the name
+  const PayerCodeBP01 = "BP01" // Banco de Crédito de Perú (BCP)
+  ```
 - Maximum 2 function parameters - use structs/objects for more
 - Explicit error handling - no silent failures
 - Structured logging with context
 - Follow language-specific skill patterns
+
+## Security Requirements
+
+### SQL Injection Prevention
+- **Always use parameterized queries** - never concatenate user input into SQL strings
+- Use the database/API native parameter binding (e.g., `:param_name` for Databricks, `$1` for PostgreSQL, `?` for MySQL with prepared statements)
+- Parameters are passed separately from the query, letting the database handle escaping
+- Test with malicious inputs like `'; DROP TABLE users; --` to verify protection
+
+### Other Security Best Practices
+- Validate and sanitize all user inputs at API boundaries
+- Use secrets management (AWS Secrets Manager, Vault) - never hardcode credentials
+- Apply principle of least privilege for IAM roles and database permissions
+- Log security-relevant events without exposing sensitive data
+- Use HTTPS/TLS for all external communications
 
 ## Quality Checklist
 
@@ -109,3 +136,4 @@ Every deliverable must have:
 - [ ] Infrastructure as code (when applicable)
 - [ ] CI/CD updates (when applicable)
 - [ ] Security considerations addressed
+- [ ] SQL injection prevention via parameterized queries

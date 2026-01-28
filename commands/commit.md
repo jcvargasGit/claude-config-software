@@ -9,20 +9,22 @@ Generate a commit message following conventional commits and commit the staged c
 
 ## Instructions
 
-1. Run `git status` and `git diff --staged` to see what's being committed
-2. Check the number of changed files
+**EFFICIENCY RULE: This is a simple command. Execute in exactly 2 steps - no extra commands.**
 
-### Standard Commit (≤10 files)
-
-Generate a commit message in this format:
-
-```
-type(scope): short description
-
-- bullet points for details (if needed)
+### Step 1: Get status and diff (single command)
+```bash
+git status && git diff --staged
 ```
 
-### Large Change Detection (>10 files)
+### Step 2: Analyze and Commit
+
+Check the number of changed files from Step 1.
+
+#### Standard Commit (≤10 files)
+
+Generate message and commit immediately. Do NOT run `git log` or any other commands.
+
+#### Large Change Detection (>10 files)
 
 When more than 10 files are changed, analyze and offer to split:
 
@@ -45,22 +47,15 @@ When more than 10 files are changed, analyze and offer to split:
    - Commit with semantic message
    - Repeat for next group
 
-## Message Format
+## Commit Message Format
 
-**Types:**
-- `feat` - new feature
-- `fix` - bug fix
-- `test` - adding or updating tests
-- `docs` - documentation only changes
-- `chore` - changes to build process, tooling, or other chores
-- `refactor` - code changes that neither fix a bug nor add a feature
-- `ci` - CI/CD changes
+```
+type(scope): BRANCH_NAME short description
 
-**Rules:**
-- Scope is optional, use folder/module name if relevant
-- Description: lowercase, no period, imperative mood ("add" not "added")
-- Keep it under 72 characters
-- Only add bullet points if multiple distinct changes
+- bullet points for details (if needed)
+```
+
+**Types:** `feat` | `fix` | `test` | `refactor` | `docs` | `chore` | `ci`
 
 ## Commit Boundaries
 
@@ -78,17 +73,24 @@ Each commit should represent one logical change:
 - Bug fix = separate commit (easy to revert)
 - Config/infra changes = separate commit (different concern)
 
+**Rules:**
+- Scope: use folder/module name if relevant
+- Description: lowercase, no period, imperative mood ("add" not "added")
+- Keep under 72 characters
+- Only add bullet points if multiple distinct changes
+- **NEVER add "Co-Authored-By: Claude"**
+
 ## Final Steps
 
 3. Run the commit with the generated message (no footer lines)
 4. Show the commit hash when done
 
-**Examples:**
+## Examples
 ```
-feat(skills): [branch-name] add Python and Node.js language skills
-fix(api): [branch-name] handle null response from user service
-refactor(handlers): [branch-name] extract validation logic
-docs: [branch-name] update README with new agent structure
-chore(deps): [branch-name] upgrade aws-sdk to v3
-ci: [branch-name] add integration test workflow
+feat(skills): feature/TA-123 add Python and Node.js language skills
+fix(api): bugfix/API-456 handle null response from user service
+refactor(handlers): feature/TA-789 extract validation logic
+docs: main update README with new agent structure
+chore(deps): main upgrade aws-sdk to v3
+ci: feature/CI-101 add integration test workflow
 ```

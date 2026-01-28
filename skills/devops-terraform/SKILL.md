@@ -1,6 +1,7 @@
 ---
 name: devops-terraform
-description: Apply Terraform best practices, module design, and IaC patterns when writing or reviewing infrastructure code.
+description: Terraform expert for *.tf files. Covers HCL, modules, state management, providers, workspaces, and terraform plan/apply. Use for any Terraform question.
+model: opus
 ---
 
 # Terraform Skill

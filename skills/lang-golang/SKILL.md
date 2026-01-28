@@ -1,11 +1,18 @@
 ---
 name: lang-golang
-description: Apply Go best practices, idiomatic patterns, and language-specific expertise when writing or reviewing Go code.
+description: Go (Golang) language expert for *.go files. Covers Go version updates, idiomatic patterns, error handling, concurrency, testing, and code review. Use for any Go/Golang question.
+model: opus
 ---
 
 # Go Development Skill
 
 Apply these Go-specific patterns and practices when working with Go code.
+
+## Additional Resources
+
+- [Patterns](./patterns.md) - Error handling, concurrency, interfaces
+- [Architecture](./architecture.md) - Project structure (hexagonal), layer rules
+- [Testing & Performance](./testing.md) - Table-driven tests, mocking, profiling
 
 ## Idiomatic Go
 
