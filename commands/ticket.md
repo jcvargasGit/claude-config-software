@@ -35,6 +35,7 @@ Track progress on Jira tickets with persistent done/pending checklists.
 | `/Users/jonathandiaz/flexera/*` | `flexera/` | CCM-XXXX |
 | `/Users/jonathandiaz/transnetwork/*` | `transnetwork/` | TN-XXXX |
 | `/Users/jonathandiaz/playvox/*` | `playvox/` | PV-XXXX |
+| `/Users/jonathandiaz/digitalp2p/*` | `digitalp2p/` | LN-XXXX |
 
 **Session logs:**
 
@@ -52,6 +53,7 @@ case "$(pwd)" in
   /Users/jonathandiaz/flexera/*) ORG="flexera" ;;
   /Users/jonathandiaz/transnetwork/*) ORG="transnetwork" ;;
   /Users/jonathandiaz/playvox/*) ORG="playvox" ;;
+  /Users/jonathandiaz/digitalp2p/*) ORG="digitalp2p" ;;
   *) ORG="flexera" ;;  # Default
 esac
 ```
@@ -132,13 +134,31 @@ Use these text indicators for clarity:
 TICKETS_REPO="/Users/jonathandiaz/projects/tickets-tracker"
 ```
 
+### ALWAYS Push After Changes (NON-NEGOTIABLE)
+
+**Every time the ticket file is created or updated, ALWAYS commit and push to the tracker repo.**
+
+```bash
+TICKETS_REPO="/Users/jonathandiaz/projects/tickets-tracker"
+cd $TICKETS_REPO && git add $ORG/$TICKET_ID/ && git commit -m "Update $TICKET_ID: <short description>" && git push origin master
+```
+
+**Rules:**
+- Push after creating a new ticket
+- Push after marking items done/pending
+- Push after adding notes
+- Push after adding session logs
+- Push after ANY modification to ticket files
+- The tracker repo is on GitHub (`jonthdiaz/tickets-tracker`) - changes must be visible to the team
+
 ### New Ticket
 1. Detect organization from working directory
 2. Ask user for description and checklist items
 3. Create directory: `$TICKETS_REPO/$ORG/<TICKET-ID>/`
 4. Create file: `$TICKETS_REPO/$ORG/<TICKET-ID>/ticket.md`
 5. Create sessions dir: `$TICKETS_REPO/$ORG/<TICKET-ID>/sessions/`
-6. Display initial status
+6. Commit and push: `cd $TICKETS_REPO && git add $ORG/$TICKET_ID/ && git commit -m "Add $TICKET_ID: <title>" && git push origin master`
+7. Display initial status
 
 ### Existing Ticket
 1. Determine `REPO_NAME` and read the ticket file
@@ -161,6 +181,7 @@ case "$(pwd)" in
   /Users/jonathandiaz/flexera/*) ORG="flexera" ;;
   /Users/jonathandiaz/transnetwork/*) ORG="transnetwork" ;;
   /Users/jonathandiaz/playvox/*) ORG="playvox" ;;
+  /Users/jonathandiaz/digitalp2p/*) ORG="digitalp2p" ;;
   *) ORG="flexera" ;;
 esac
 
